@@ -1,0 +1,148 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "n8n",
+  "theme": "aspen",
+  "colors": {
+    "primary": "#ea4b71",
+    "light": "#ff6d5a",
+    "dark": "#ea4b71"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/n8n-io/n8n"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/n8n-io/n8n",
+      "website": "https://n8n.io"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation",
+              "core-concepts"
+            ]
+          },
+          {
+            "group": "Self-Hosting",
+            "pages": [
+              "hosting/overview",
+              "hosting/docker",
+              "hosting/configuration",
+              "hosting/scaling"
+            ]
+          },
+          {
+            "group": "Building Workflows",
+            "pages": [
+              "workflows/creating-workflows",
+              "workflows/nodes-overview",
+              "workflows/expressions",
+              "workflows/error-handling",
+              "workflows/execution-modes"
+            ]
+          },
+          {
+            "group": "AI Workflows",
+            "pages": [
+              "ai/overview",
+              "ai/agents",
+              "ai/langchain-nodes",
+              "ai/vector-stores",
+              "ai/embeddings"
+            ]
+          },
+          {
+            "group": "Node Development",
+            "pages": [
+              "node-development/overview",
+              "node-development/node-structure",
+              "node-development/credentials",
+              "node-development/testing",
+              "node-development/versioning"
+            ]
+          },
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "cli/commands",
+              "cli/execution",
+              "cli/import-export",
+              "cli/user-management"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core API",
+            "pages": [
+              "api/overview",
+              "api/authentication",
+              "api/workflows",
+              "api/executions",
+              "api/credentials"
+            ]
+          },
+          {
+            "group": "Node API",
+            "pages": [
+              "api/node-types",
+              "api/node-execution",
+              "api/node-parameters"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Integrations",
+        "groups": [
+          {
+            "group": "Integration Catalog",
+            "pages": [
+              "integrations/overview",
+              "integrations/popular-nodes",
+              "integrations/triggers",
+              "integrations/actions"
+            ]
+          },
+          {
+            "group": "AI Integrations",
+            "pages": [
+              "integrations/ai/openai",
+              "integrations/ai/anthropic",
+              "integrations/ai/google-gemini",
+              "integrations/ai/langchain"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Contributing",
+        "groups": [
+          {
+            "group": "Development",
+            "pages": [
+              "contributing/setup",
+              "contributing/architecture",
+              "contributing/testing",
+              "contributing/guidelines"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
