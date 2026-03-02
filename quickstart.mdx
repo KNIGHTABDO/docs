@@ -1,215 +1,147 @@
 ---
 title: Quickstart
-description: Get n8n running and create your first workflow in under 5 minutes
+description: Get ZeroQCM running locally in under 5 minutes
 ---
 
 # Quickstart
 
-Get n8n up and running in minutes and create your first workflow. This guide will help you:
-- Install n8n locally
-- Create your first workflow
-- Understand the n8n interface
-- Test and execute your workflow
+Get ZeroQCM up and running locally in minutes. This guide covers:
+- Cloning and installing the project
+- Configuring Supabase credentials
+- Starting the development server
+- Navigating the platform
 
 <Note>
-This quickstart uses `npx` for the fastest setup. For production deployments, see the [Installation Guide](/installation).
+This quickstart gets you running for local development. For production deployment on Vercel, see the [Installation Guide](/installation).
 </Note>
 
-## Step 1: Install and Start n8n
+## Step 1: Clone and install
 
-The fastest way to try n8n is with npx (requires Node.js 22.16+):
-
-<CodeGroup>
-```bash npx
-npx n8n
+```bash
+git clone https://github.com/KNIGHTABDO/zeroqcm.git
+cd zeroqcm
+npm install
 ```
 
-```bash Docker
-docker volume create n8n_data
-docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
+<Note>
+  Requires **Node.js 18+** and **npm 9+**.
+</Note>
+
+## Step 2: Configure environment
+
+Copy the example environment file and fill in your Supabase credentials:
+
+```bash
+cp .env.example .env.local
 ```
-</CodeGroup>
 
-Once n8n starts, open your browser to [http://localhost:5678](http://localhost:5678). You'll be prompted to create an owner account.
+At minimum, set these variables in `.env.local`:
 
-## Step 2: Create Your First Workflow
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-Let's create a simple workflow that fetches data from an API and processes it.
+<Tip>
+  Get your Supabase URL and anon key from **Supabase Dashboard → Settings → API**.
+</Tip>
 
-<Steps>
-<Step title="Add a Manual Trigger">
-  1. Click the **+** button in the canvas
-  2. Search for "Manual Trigger"
-  3. Click to add it to your workflow
+## Step 3: Start the dev server
 
-  The Manual Trigger lets you start workflows manually for testing.
-</Step>
+```bash
+npm run dev
+```
 
-<Step title="Add an HTTP Request Node">
-  1. Click the **+** button again
-  2. Search for "HTTP Request"
-  3. Configure it:
-     - Method: `GET`
-     - URL: `https://jsonplaceholder.typicode.com/users`
-  
-  This will fetch a list of users from a test API.
-</Step>
+Open [http://localhost:3000](http://localhost:3000) in your browser. You should see the ZeroQCM landing page.
 
-<Step title="Add a Code Node">
-  1. Add another node
-  2. Search for "Code"
-  3. Use this JavaScript to transform the data:
-
-  ```javascript
-  // Transform user data
-  return items.map(item => ({
-    json: {
-      name: item.json.name,
-      email: item.json.email,
-      company: item.json.company.name,
-      city: item.json.address.city
-    }
-  }));
-  ```
-</Step>
-
-<Step title="Test Your Workflow">
-  1. Click **Test workflow** button in the top right
-  2. Your workflow will execute
-  3. Click each node to see the data flowing through
-</Step>
-</Steps>
-
-## Understanding the Interface
+## Step 4: Explore the platform
 
 <Tabs>
-<Tab title="Canvas">
-  The main area where you build workflows by connecting nodes. Click and drag to move nodes, click the connector dots to link them together.
+<Tab title="Dashboard">
+  After signing in, the **Dashboard** shows your selected semester with modules and activities. Pick a module to start a quiz session.
 </Tab>
 
-<Tab title="Node Panel">
-  The left sidebar contains all available nodes:
-  - **Triggers**: Start workflows (Schedule, Webhook, etc.)
-  - **Actions**: Perform operations (HTTP Request, Database, etc.)
-  - **Flow**: Control workflow logic (If, Switch, Merge)
-  - **Data**: Transform data (Code, Set, Filter)
+<Tab title="Quiz Engine">
+  The quiz interface supports:
+  - **Keyboard navigation**: `A`–`E` to select options, `Enter` to confirm, `←/↑` to navigate
+  - **Swipe gestures**: Swipe left/right on mobile
+  - **Instant feedback**: Correct/incorrect answers highlighted immediately
 </Tab>
 
-<Tab title="Execution Details">
-  The right panel shows execution data:
-  - **Input/Output**: Data flowing into and out of each node
-  - **JSON/Table views**: Different ways to visualize data
-  - **Binary data**: File attachments and images
+<Tab title="AI Explanations">
+  During a quiz, tap any option to get an AI-generated explanation of why it is correct or incorrect. Responses stream token-by-token.
+</Tab>
+
+<Tab title="Stats & Progress">
+  The **Stats** page shows animated SVG rings for total answered, success rate, and daily streak. The **Revision** page targets your weakest modules.
 </Tab>
 </Tabs>
 
-## Common Workflow Patterns
+## Project structure overview
 
-<CardGroup cols={2}>
-  <Card title="Schedule + Action" icon="clock">
-    Use a Schedule Trigger to run workflows automatically (e.g., daily reports, data sync)
-  </Card>
-  <Card title="Webhook + Process" icon="webhook">
-    Receive data from external services and process it in real-time
-  </Card>
-  <Card title="Poll + Notify" icon="bell">
-    Check for new data periodically and send notifications
-  </Card>
-  <Card title="Manual + Test" icon="play">
-    Test complex workflows manually before automating them
-  </Card>
-</CardGroup>
-
-## Data Flow
-
-In n8n, data flows from node to node as **items**. Each item has:
-- `json`: The main data object
-- `binary` (optional): File attachments
-
-```json
-{
-  "json": {
-    "name": "John Doe",
-    "email": "john@example.com"
-  },
-  "binary": {}
-}
+```
+zeroqcm/
+├── src/
+│   ├── app/                        # Next.js App Router pages
+│   │   ├── dashboard/              # Main dashboard
+│   │   ├── quiz/                   # Quiz engine
+│   │   ├── semestres/              # Semester browser
+│   │   ├── stats/                  # Statistics page
+│   │   ├── revision/               # Targeted revision
+│   │   ├── bookmarks/              # Saved questions
+│   │   ├── flashcards/             # SM-2 flashcards
+│   │   ├── study-rooms/            # Collaborative rooms
+│   │   ├── chatwithai/             # AI chat interface
+│   │   ├── certificates/           # Module certificates
+│   │   ├── settings/               # User settings
+│   │   ├── auth/                   # Login/signup
+│   │   ├── admin/                  # Admin panel
+│   │   └── api/                    # API routes
+│   ├── components/                 # React components
+│   ├── lib/                        # Supabase client + utilities
+│   └── hooks/                      # Custom React hooks
+├── .env.example
+├── next.config.ts
+├── tailwind.config.ts
+└── package.json
 ```
 
-Access data in expressions using `$json`:
-```javascript
-{{ $json.name }}         // John Doe
-{{ $json.email }}        // john@example.com
-```
-
-## Next Steps
+## Next steps
 
 <CardGroup cols={2}>
   <Card title="Core Concepts" icon="book" href="/core-concepts">
-    Learn about nodes, triggers, credentials, and more
+    Understand semesters, modules, questions, and the quiz flow
   </Card>
   <Card title="Installation" icon="download" href="/installation">
-    Set up n8n for production use
+    Full setup guide with Supabase schema and Vercel deployment
   </Card>
-  <Card title="Building Workflows" icon="diagram-project" href="/workflows/creating-workflows">
-    Deep dive into workflow creation
+  <Card title="Quiz Engine" icon="circle-question" href="/features/quiz-engine">
+    Deep dive into the quiz interface and question types
   </Card>
-  <Card title="AI Workflows" icon="brain" href="/ai/overview">
-    Build AI-powered automations with LangChain
+  <Card title="AI Explanations" icon="brain" href="/features/ai-explanations">
+    Learn how AI-powered explanations work
   </Card>
 </CardGroup>
 
 ## Troubleshooting
 
 <AccordionGroup>
-<Accordion title="n8n won't start">
+<Accordion title="Dev server won't start">
   Check that:
-  - Node.js version is 22.16 or higher: `node --version`
-  - Port 5678 is not in use
-  - You have permissions to write to the `.n8n` folder
+  - Node.js version is 18 or higher: `node --version`
+  - Dependencies are installed: `npm install`
+  - Port 3000 is not in use
 </Accordion>
 
-<Accordion title="Workflow won't execute">
-  Common issues:
-  - Check that nodes are properly connected
-  - Verify API credentials are configured
-  - Look for error messages in node output
-  - Check browser console for errors
+<Accordion title="Supabase connection errors">
+  - Verify `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`
+  - Confirm your Supabase project is active in the dashboard
+  - Check that Row Level Security (RLS) policies are configured
 </Accordion>
 
-<Accordion title="Data not appearing">
-  - Click **Test workflow** to execute manually
-  - Check that previous nodes ran successfully
-  - Verify expressions using the Expression Editor
-  - Use `console.log()` in Code nodes for debugging
+<Accordion title="Auth not working">
+  - Ensure Supabase Auth is enabled with email provider
+  - Check the redirect URL configuration in Supabase Auth settings
+  - Verify `NEXT_PUBLIC_APP_URL` matches your local URL
 </Accordion>
 </AccordionGroup>
-
-## Database Configuration
-
-By default, n8n uses SQLite for storage. For production use, consider PostgreSQL:
-
-```bash
-# With environment variables
-export DB_TYPE=postgresdb
-export DB_POSTGRESDB_HOST=localhost
-export DB_POSTGRESDB_PORT=5432
-export DB_POSTGRESDB_DATABASE=n8n
-export DB_POSTGRESDB_USER=n8n
-export DB_POSTGRESDB_PASSWORD=password
-
-npx n8n
-```
-
-See the [Installation Guide](/installation) for complete database configuration.
-
-## Additional Resources
-
-- [n8n Community Forum](https://community.n8n.io) - Get help and share workflows
-- [Workflow Templates](https://n8n.io/workflows) - 900+ ready-to-use templates
-- [Node Documentation](https://docs.n8n.io/integrations/) - Detailed node guides
-- [YouTube Channel](https://www.youtube.com/c/n8n-io) - Video tutorials
-
-<Tip>
-Join the [n8n community forum](https://community.n8n.io) to connect with other users, share workflows, and get help from the team!
-</Tip>

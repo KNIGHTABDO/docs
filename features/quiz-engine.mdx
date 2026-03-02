@@ -1,0 +1,67 @@
+---
+title: Quiz Engine
+description: QCM and QROC question types, multi-select, keyboard navigation, swipe gestures, and instant feedback
+---
+
+# Quiz Engine
+
+The quiz engine is the core of ZeroQCM. It presents medical questions one at a time with instant feedback and supports multiple question formats.
+
+## Question Types
+
+<CardGroup cols={2}>
+  <Card title="QCM" icon="list-check">
+    Multiple-choice questions with one or more correct answers
+  </Card>
+  <Card title="QROC" icon="pen">
+    Open-response questions requiring typed answers
+  </Card>
+</CardGroup>
+
+### Multi-Select Support
+
+ZeroQCM handles questions with multiple correct answers. When a question has more than one correct choice, the interface displays a **multi-select indicator** and allows the user to select multiple options before confirming.
+
+## Navigation
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|---|---|
+| `A`–`E` | Select the corresponding option |
+| `Enter` | Confirm answer |
+| `←` or `↑` | Previous question |
+| `→` or `↓` | Next question |
+
+### Swipe Gestures
+
+On mobile devices, swipe gestures provide native touch navigation:
+- **Swipe left**: Move to the next question
+- **Swipe right**: Go to the previous question
+
+## Instant Feedback
+
+After confirming an answer, the quiz engine immediately reveals:
+- **Correct options** highlighted in green
+- **Incorrect selections** highlighted in red
+- A **progress counter** showing the current position in the quiz
+
+This instant feedback loop helps reinforce learning during the revision session.
+
+## Quiz Sessions
+
+Quiz sessions are persisted in the `quiz_sessions` table in Supabase:
+- Each session is keyed by `(user_id, activity_id)` — one active session per activity per user
+- The session stores the current question index and answer history
+- Sessions resume where the user left off
+
+## Question Counter
+
+A progress indicator at the top of the quiz shows:
+- Current question number out of total
+- Visual progress bar
+- Module and activity name
+
+## AI Integration
+
+During a quiz, users can tap any answer option to request an **AI explanation**. This sends the question context to the `/api/ai-explain` endpoint and streams a response back token-by-token. See [AI Explanations](/features/ai-explanations) for details.

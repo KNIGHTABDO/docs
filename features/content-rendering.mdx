@@ -1,0 +1,55 @@
+---
+title: Content Rendering
+description: Markdown tables, inline formatting, bullet lists, and multiline blocks in questions
+---
+
+# Content Rendering
+
+ZeroQCM renders rich content within questions and answer options. Medical questions often contain complex formatting, and the platform supports a wide range of Markdown and custom rendering.
+
+## Supported Formatting
+
+### Markdown Tables
+
+Questions containing pipe tables (`|`) are rendered as formatted HTML tables:
+
+```markdown
+| Structure | Location |
+|-----------|----------|
+| Biceps    | Arm      |
+| Triceps   | Arm      |
+```
+
+### Inline Formatting
+
+| Syntax | Rendering |
+|---|---|
+| `**bold**` | **bold** text |
+| `*italic*` | *italic* text |
+| `` `code` `` | `inline code` |
+| `^superscript` | Superscript text |
+| `_subscript` | Subscript text |
+
+### Bullet and Numbered Lists
+
+Questions with list formatting render as styled list items:
+- Unordered lists with `-` or `*` prefixes
+- Ordered lists with numbered prefixes
+- Nested lists are supported
+
+### Multiline Blocks
+
+Double-newline paragraph breaks are preserved in questions and choices, maintaining the original formatting of medical content.
+
+## KaTeX Support
+
+ZeroQCM includes **KaTeX** for rendering mathematical and chemical formulas:
+- Inline math with `$...$`
+- Display math with `$$...$$`
+- Commonly used for biochemistry and pharmacology formulas
+
+## Image Support
+
+Questions can include images (e.g., histology slides, radiology images):
+- Images are proxied through `/api/image-proxy` for security and caching
+- Responsive image rendering for all screen sizes

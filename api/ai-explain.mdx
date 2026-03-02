@@ -1,0 +1,87 @@
+---
+title: AI Explain API
+description: The /api/ai-explain endpoint for generating per-option AI explanations
+---
+
+# AI Explain API
+
+The `/api/ai-explain` endpoint generates AI-powered explanations for quiz answer options using GitHub Models.
+
+## Endpoint
+
+```
+POST /api/ai-explain
+```
+
+## Request Body
+
+```json
+{
+  "prompt": "Explain why option B is correct for this anatomy question about...",
+  "model": "gpt-4o-mini"
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `prompt` | string | Yes | The explanation prompt including question context |
+| `model` | string | No | AI model to use (defaults to `gpt-4o-mini`) |
+
+## Response
+
+The response is a **streaming text response** (Server-Sent Events). Tokens are sent one at a time as the AI generates them.
+
+```
+data: Explain
+data: ation
+data: :
+data:  Option
+data:  B
+data:  is
+data:  correct
+data:  because
+...
+```
+
+## Model Whitelist
+
+The API enforces a server-side model whitelist. Requests with unrecognized models fall back to `gpt-4o-mini`:
+
+```typescript
+const ALLOWED_MODELS = [
+  "gpt-4o-mini", "gpt-4o", "o3-mini", "o4-mini",
+  "Meta-Llama-3.3-70B-Instruct", "Phi-4", "Phi-4-mini",
+  "Mistral-Large-2", "Cohere-Command-R-Plus-08-2024",
+];
+```
+
+## Caching
+
+Before calling the AI API, the endpoint checks the `ai_explanations` table for a cached response:
+- Cache key: `SHA256(prompt)`
+- If a cached explanation exists, it is returned immediately (no AI API call)
+- If not cached, the AI response is streamed and then stored in the cache
+- Cache entries are shared across all users
+
+## Configuration
+
+```typescript
+export const maxDuration = 60; // Vercel function timeout
+export const runtime = "nodejs"; // Required for env var access
+```
+
+<Warning>
+  The `maxDuration = 60` setting is critical on Vercel Hobby tier, which has a default 10-second timeout. Without this, AI streams will be killed prematurely.
+</Warning>
+
+## Authentication
+
+This endpoint requires an authenticated Supabase session. The user must be logged in and activated.
+
+## Error Responses
+
+| Status | Description |
+|---|---|
+| 401 | User not authenticated |
+| 400 | Missing prompt in request body |
+| 500 | AI API error or internal server error |

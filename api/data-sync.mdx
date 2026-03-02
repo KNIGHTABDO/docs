@@ -1,0 +1,82 @@
+---
+title: Data Sync Pipeline
+description: How ZeroQCM syncs question data from DariQCM via API routes and cron jobs
+---
+
+# Data Sync Pipeline
+
+All question data in ZeroQCM is sourced from **DariQCM**, the official Moroccan medical faculty QCM platform. Data is synced via API routes and a daily cron job.
+
+## Sync Architecture
+
+```
+DariQCM API
+  │
+  ├── /api/scrape-expand   POST {year:2-5}  → Odd semesters (S1,S3,S5,S7,S9)
+  │   └── AES-256-GCM encrypted → decrypts → normalizes → upserts
+  │
+  ├── /api/scrape-even     POST             → Even semesters (S2,S4,S6,S8,S10)
+  │   └── Direct module/questions fetch → normalizes → upserts
+  │
+  └── /api/sync            Cron 02:00 UTC   → Incremental daily sync
+        └── Fetches delta → upserts new questions
+```
+
+## API Routes
+
+### `/api/scrape-expand`
+
+Syncs **odd semester** questions (S1, S3, S5, S7, S9):
+- Accepts `POST` with `{ year: 2-5 }` parameter
+- Fetches encrypted data from DariQCM
+- Decrypts using AES-256-GCM
+- Normalizes question format
+- Upserts into Supabase tables
+
+### `/api/scrape-even`
+
+Syncs **even semester** questions (S2, S4, S6, S8, S10):
+- Fetches module and question data directly
+- Normalizes question format
+- Upserts into Supabase tables
+
+### `/api/sync`
+
+Daily incremental sync running at **02:00 UTC**:
+- Triggered by Vercel Cron
+- Authenticated via `CRON_SECRET` bearer token
+- Fetches only new/updated questions (delta sync)
+- Upserts changes into Supabase
+
+## Vercel Cron Configuration
+
+```json
+// vercel.json
+{
+  "crons": [
+    {
+      "path": "/api/sync",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
+```
+
+## Data Normalization
+
+Incoming data is normalized before upserting:
+1. **Semesters** are mapped to the standard S1–S10 naming
+2. **Modules** are created or matched by name within each semester
+3. **Activities** represent exam sessions within each module
+4. **Questions** are inserted with their text body and metadata
+5. **Choices** (answer options) are linked to questions with correct/incorrect flags
+
+## Security
+
+- Scrape routes are admin-only or protected by specific authentication
+- The sync route requires a bearer token matching `CRON_SECRET`
+- All database operations use the `SUPABASE_SERVICE_ROLE_KEY` for full access
+
+<Warning>
+  The scrape and sync routes have full database write access via the service role key. They should never be exposed to unauthenticated users.
+</Warning>
