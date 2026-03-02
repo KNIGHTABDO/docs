@@ -1,0 +1,68 @@
+---
+title: Community Features
+description: Bookmarks, comments, leaderboard, study rooms, and flashcards
+---
+
+# Community Features
+
+ZeroQCM includes social and collaborative features to help students learn together.
+
+## Bookmarks
+
+Save any question during a quiz with one tap:
+- Bookmarked questions are stored in the `bookmarks` table (unique on `user_id, question_id`)
+- Review all bookmarks at `/bookmarks`
+- Useful for revisiting tricky questions or building study lists
+
+## Comments
+
+Every question has a **discussion thread**:
+- Students can share tips, corrections, and mnemonics
+- Comments are stored in the `comments` table with per-question threads
+- Other users can like comments via the `comment_likes` table
+- Comments are visible to all users on the same question
+
+## Leaderboard
+
+An anonymous ranking system motivates consistent revision:
+- Rankings by total correct answers and daily streak
+- **Podium top 3** with special styling
+- Full leaderboard list below the podium
+- Rankings update in real time
+
+## Study Rooms
+
+Real-time collaborative revision rooms powered by **Supabase Realtime**:
+
+<Steps>
+  <Step title="Create a room">
+    Any user can create a study room from `/study-rooms`. Each room gets a unique join code.
+  </Step>
+  <Step title="Invite friends">
+    Share the room code with classmates. They enter the code to join.
+  </Step>
+  <Step title="Study together">
+    All participants see the same questions and can discuss answers in real time.
+  </Step>
+</Steps>
+
+### Room Management
+
+| Feature | Details |
+|---|---|
+| **Unique codes** | Each room has a unique join code with collision retry |
+| **Live presence** | `room_participants` table tracks who is online |
+| **Creator controls** | The room creator can manage the session |
+| **Realtime sync** | Supabase Realtime keeps all participants in sync |
+
+## Flashcards
+
+The flashcard system at `/flashcards` uses the **SM-2 spaced repetition algorithm**:
+- Cards are generated from questions and AI explanations
+- Performance-based scheduling determines review intervals
+- Progress is tracked in the `flashcard_progress` table
+- Cards that you struggle with appear more frequently
+
+## Voice Feature
+
+ZeroQCM includes an experimental **Voice** feature at `/voice` for audio-based revision and accessibility.

@@ -1,0 +1,95 @@
+---
+title: Database
+description: Supabase PostgreSQL schema, tables, and key constraints for ZeroQCM
+---
+
+# Database
+
+ZeroQCM uses **Supabase** (PostgreSQL) for all persistent data. This page documents the table schema, row counts, and key constraints.
+
+## Tables Overview
+
+| Table | Description |
+|---|---|
+| `semesters` | S1–S10 across multiple faculties |
+| `modules` | Courses within each semester |
+| `activities` | QCM exam sessions per module |
+| `questions` | Individual questions (~215,000+) |
+| `choices` | Answer options for each question (~200,000+) |
+| `profiles` | User profiles |
+| `user_answers` | User answer history |
+| `ai_explanations` | Cached AI explanations (shared across users) |
+| `comments` | Per-question discussion comments |
+| `comment_likes` | Comment likes |
+| `bookmarks` | User question bookmarks |
+| `quiz_sessions` | In-progress quiz session state |
+| `study_rooms` | Collaborative study rooms |
+| `room_participants` | Study room participants |
+| `flashcard_progress` | User flashcard session data |
+| `ai_usage` | Per-user AI quota consumption |
+| `ai_models_config` | AI model multipliers and config |
+| `activation_keys` | User activation status |
+
+## Questions by Semester
+
+| Semester | Approximate Count |
+|----------|------------------:|
+| S1 | ~59,000 |
+| S3 | ~37,600 |
+| S5 | ~38,600 |
+| S7 | ~26,100 |
+| S9 | ~19,000 |
+| S2, S4, S6, S8, S10 | Varies |
+| **Total** | **215,000+** |
+
+## Key Constraints
+
+| Table | Constraint | Type |
+|---|---|---|
+| `bookmarks` | `(user_id, question_id)` | Unique — upsert safe |
+| `quiz_sessions` | `(user_id, activity_id)` | Unique — upserted on every answer |
+| `study_rooms` | `code` | Unique — retry loop handles collisions |
+| `ai_usage` | `(user_id, usage_date, multiplier)` | Composite key |
+
+## Row Level Security (RLS)
+
+Supabase RLS policies protect all tables:
+- Users can only read/write their own `user_answers`, `bookmarks`, and `quiz_sessions`
+- `questions`, `choices`, `modules`, and `semesters` are read-only for authenticated users
+- `ai_explanations` are readable by all authenticated users (shared cache)
+- Admin routes bypass RLS using the `SUPABASE_SERVICE_ROLE_KEY`
+
+## Data Relationships
+
+```
+semesters
+  └── modules (semester_id)
+        └── activities (module_id)
+              └── questions (activity_id)
+                    ├── choices (question_id)
+                    ├── bookmarks (question_id, user_id)
+                    ├── comments (question_id, user_id)
+                    └── user_answers (question_id, user_id)
+```
+
+## Supabase Connection
+
+```
+Project URL:  https://your-project.supabase.co
+Dashboard:    supabase.com/dashboard/project/your-project-id
+```
+
+Your keys are in:
+- **Supabase** → Project → Settings → API → `anon` key (client-side)
+- **Supabase** → Project → Settings → API → `service_role` key (server-side)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="gear" href="/hosting/configuration">
+    Environment variable reference
+  </Card>
+  <Card title="Data Pipeline" icon="arrows-rotate" href="/api/data-sync">
+    How question data is synced from DariQCM
+  </Card>
+</CardGroup>

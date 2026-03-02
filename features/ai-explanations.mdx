@@ -1,0 +1,82 @@
+---
+title: AI Explanations
+description: Per-option AI explanations powered by GitHub Models with streaming responses and shared caching
+---
+
+# AI Explanations
+
+ZeroQCM provides AI-generated explanations for every answer option in a quiz. Tap any option after answering to get a tailored explanation of why it is correct or incorrect.
+
+## How It Works
+
+<Steps>
+  <Step title="User taps an option">
+    After answering a question, the user taps any option to request an explanation.
+  </Step>
+  <Step title="Frontend sends request">
+    The client sends `{ prompt, model }` to `/api/ai-explain`.
+  </Step>
+  <Step title="Server authenticates">
+    The API route authenticates using a server-side token (never exposed to the browser).
+  </Step>
+  <Step title="Response streams back">
+    The AI response streams token-by-token for instant perceived performance.
+  </Step>
+  <Step title="Explanation is cached">
+    On success, the explanation is stored in the `ai_explanations` table, keyed by `SHA256(prompt)`. All future requests for the same question hit cache instantly.
+  </Step>
+</Steps>
+
+## Model Selection
+
+Users can choose their preferred AI model from the **Settings** page. The API enforces a server-side model whitelist with `gpt-4o-mini` as the default fallback:
+
+```typescript
+const ALLOWED_MODELS = [
+  "gpt-4o-mini", "gpt-4o", "o3-mini", "o4-mini",
+  "Meta-Llama-3.3-70B-Instruct", "Phi-4", "Phi-4-mini",
+  "Mistral-Large-2", "Cohere-Command-R-Plus-08-2024",
+];
+```
+
+The settings page dynamically lists available models from the GitHub Models API.
+
+## Shared Cache
+
+Explanations are stored in the `ai_explanations` Supabase table and shared across all users:
+- Cache key is `SHA256(prompt)` — identical questions always hit the same cache entry
+- This dramatically reduces API costs and latency for popular questions
+- Cache entries are permanent and never expire
+
+## Streaming
+
+Responses use **server-sent streaming** for instant perceived performance:
+- Tokens appear one at a time as the AI generates them
+- The `maxDuration = 60` setting on the API route prevents Vercel Hobby tier from killing long streams
+- The AI route uses the `nodejs` runtime (not `edge`) to access sensitive environment variables
+
+## GitHub Models Backend
+
+ZeroQCM uses **GitHub Models** as the AI backend:
+- Authentication uses a server-side Personal Access Token (`GITHUB_MODELS_TOKEN`)
+- No API key is required from the student
+- The server-side token is encrypted in Vercel environment variables
+
+<Warning>
+  The `GITHUB_MODELS_TOKEN` must be kept server-side only. Never expose it to the browser or include it in `NEXT_PUBLIC_` prefixed variables.
+</Warning>
+
+## AI Usage Tracking
+
+Per-user AI usage is tracked in the `ai_usage` table:
+- Composite key on `(user_id, usage_date, multiplier)`
+- Different models have different cost multipliers configured in `ai_models_config`
+- Administrators can monitor usage from the admin panel
+
+## ChatWithAI
+
+In addition to per-option explanations, ZeroQCM includes a **ChatWithAI** feature at `/chatwithai`:
+- Full conversational AI interface with streaming responses
+- Model picker for choosing the AI model
+- QCM search tool integration for finding relevant questions
+- Dedicated chat history per user

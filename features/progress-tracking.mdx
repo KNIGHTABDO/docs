@@ -1,0 +1,69 @@
+---
+title: Progress Tracking
+description: Stats dashboard, daily streaks, spaced repetition, and targeted revision
+---
+
+# Progress Tracking
+
+ZeroQCM tracks every answer you give and uses that data to help you focus on your weakest areas.
+
+## Stats Dashboard
+
+The **Stats** page (`/stats`) displays your performance with animated SVG rings:
+
+| Metric | Description |
+|---|---|
+| **Total Answered** | Number of questions you have answered |
+| **Success Rate** | Percentage of questions answered correctly |
+| **Daily Streak** | Consecutive days of revision |
+| **Per-Module Breakdown** | Success rate per module with error badges |
+
+## Daily Streak
+
+ZeroQCM tracks consecutive revision days:
+- A **streak day** is counted when you answer at least one question
+- The streak resets if you miss a day
+- Your current and best streaks are displayed on the stats page
+
+## Spaced Repetition
+
+ZeroQCM uses a spaced-repetition approach to target your weakest areas:
+
+1. **Track errors**: Every incorrect answer is recorded in the `user_answers` table
+2. **Identify weak questions**: Questions answered incorrectly 2 or more times are flagged
+3. **Targeted revision**: The `/revision` page lists modules where you have weak questions
+4. **Focused sessions**: Launch a quiz session containing only your weak questions from a given module
+
+### Révision Ciblée
+
+The **Révision ciblée** page (`/revision`) provides:
+- A list of modules where you have failed 2+ questions
+- **Error badges** showing the number of incorrect answers per module
+- One-tap launch of a focused revision session for any weak module
+
+## Flashcards
+
+ZeroQCM includes an **SM-2 spaced repetition flashcard system** at `/flashcards`:
+- Flashcards are generated from questions and answer explanations
+- The SM-2 algorithm schedules reviews based on your performance
+- Progress is tracked in the `flashcard_progress` table
+
+## Reset Stats
+
+Users can reset all their statistics from the **Settings** page:
+- One-tap reset with a confirmation dialog
+- Wipes all `user_answers` for the account
+- Resets streaks, success rates, and per-module data
+- This action cannot be undone
+
+## Module Certificates
+
+After completing a module with high accuracy, users earn **certificates**:
+
+| Tier | Requirement |
+|---|---|
+| 🥉 Bronze | Complete all questions in a module |
+| 🥈 Silver | Achieve 70%+ accuracy |
+| 🥇 Gold | Achieve 90%+ accuracy |
+
+Certificates are shareable as HD OG images and viewable at `/certificates`.
